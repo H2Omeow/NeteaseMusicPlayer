@@ -47,6 +47,31 @@ window.chkAPI = function() {
     });
 };
 
+// ==================== 封面占位图 ====================
+// 返回一个内联 SVG data URI，用作专辑/歌曲封面的 fallback
+window.coverPlaceholder = function() {
+  return 'data:image/svg+xml,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">' +
+    '<rect width="200" height="200" fill="#1a1a2e" rx="12"/>' +
+    '<circle cx="100" cy="88" r="36" fill="none" stroke="rgba(243,18,96,0.35)" stroke-width="3"/>' +
+    '<polygon points="89,76 89,100 116,88" fill="rgba(243,18,96,0.45)"/>' +
+    '<text x="100" y="152" text-anchor="middle" font-family="sans-serif" font-size="13" fill="rgba(255,255,255,0.25)">暂无封面</text>' +
+    '</svg>'
+  );
+};
+
+// 给图片元素设置 onerror fallback，加载失败时替换为占位图
+window.imgFallback = function(img) {
+  img.onerror = function() {
+    this.onerror = null;
+    this.src = window.coverPlaceholder();
+  };
+  // 如果 src 一开始就是空的，直接设占位图
+  if (!img.src || img.src === window.location.href) {
+    img.src = window.coverPlaceholder();
+  }
+};
+
 // ==================== 时间格式化 ====================
 window.fmtT = function(t) {
   if (!t || isNaN(t)) return '00:00';

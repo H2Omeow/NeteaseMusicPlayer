@@ -42,7 +42,7 @@ window.loadBili = function() {
         var title = v.title || "";
         var uname = v.owner ? v.owner.name : "";
         var play = v.stat ? (v.stat.view || 0) : 0;
-        return "<div class=\"sc\" onclick=\"window.open('https://www.bilibili.com/video/' + v.bvid)\"><img src=\"" + pic + "@200w_200h.webp\" alt=\"\" loading=\"lazy\" /><div class=\"sn\">" + window.escH(title) + "</div><div class=\"sa\">" + window.escH(uname) + " · " + window.fmtPlay(play) + "</div></div>";
+        return "<div class=\"sc\" onclick=\"window.open('https://www.bilibili.com/video/' + v.bvid)\"><img src=\"" + (pic ? (pic + "@200w_200h.webp") : window.coverPlaceholder()) + "\" alt=\"\" loading=\"lazy\" onerror=\"imgFallback(this)\" /><div class=\"sn\">" + window.escH(title) + "</div><div class=\"sa\">" + window.escH(uname) + " · " + window.fmtPlay(play) + "</div></div>";
       }).join("");
     } else { grid.innerHTML = "<div style=\"padding:16px;color:var(--text-secondary)\">加载失败</div>"; }
   }).catch(function() { grid.innerHTML = "<div style=\"padding:16px;color:var(--text-secondary)\">API 连接失败</div>"; });
@@ -75,7 +75,7 @@ window.biSearch = function() {
           var title = v.title || "";
           var uname = v.author || "";
           var play = v.play || 0;
-          return "<div class=\"sc\" onclick=\"window.open('https://www.bilibili.com/video/' + v.bvid)\"><img src=\"" + pic + "@200w_200h.webp\" alt=\"\" loading=\"lazy\" /><div class=\"sn\">" + window.escH(title) + "</div><div class=\"sa\">" + window.escH(uname) + " · " + window.fmtPlay(play) + "</div></div>";
+          return "<div class=\"sc\" onclick=\"window.open('https://www.bilibili.com/video/' + v.bvid)\"><img src=\"" + (pic ? (pic + "@200w_200h.webp") : window.coverPlaceholder()) + "\" alt=\"\" loading=\"lazy\" onerror=\"imgFallback(this)\" /><div class=\"sn\">" + window.escH(title) + "</div><div class=\"sa\">" + window.escH(uname) + " · " + window.fmtPlay(play) + "</div></div>";
         }).join("");
       } else { document.getElementById("biResGrid").innerHTML = "<div style=\"padding:16px;color:var(--text-secondary)\">未找到视频</div>"; }
     } else { document.getElementById("biResGrid").innerHTML = "<div style=\"padding:16px;color:var(--text-secondary)\">搜索失败</div>"; }
@@ -89,7 +89,9 @@ window.loadRec = function() {
   window.fAPI('/personalized?limit=8').then(function(d) {
     if (d.code === 200 && d.result) {
       pr.innerHTML = d.result.map(function(p) {
-        return '<div class="plc" onclick="ldPL(\'' + p.id + '\')"><img src="' + p.picUrl + '?param=200y200" alt="" loading=\"lazy\" /><div class="pn">' + window.escH(p.name) + '</div></div>';
+        var pic = p.picUrl || '';
+        var src = pic ? (pic + '?param=200y200') : window.coverPlaceholder();
+        return '<div class="plc" onclick="ldPL(\'' + p.id + '\')"><img src="' + src + '" alt="" loading="lazy" onerror="imgFallback(this)" /><div class="pn">' + window.escH(p.name) + '</div></div>';
       }).join('');
     } else {
       pr.innerHTML = '<div style="padding:16px;color:var(--text-secondary)">无法加载推荐歌单</div>';

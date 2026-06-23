@@ -44,7 +44,7 @@
     <div class="pg active" id="pgHome">
       <!-- ★ 新增：顶部播放状态栏（替代原播放统计卡片） -->
       <div class="top-status" id="topStatus">
-        <img id="statusCover" src="" alt="封面" onclick="tFull()" />
+        <img id="statusCover" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23151520' rx='10'/%3E%3Ccircle cx='100' cy='85' r='32' fill='none' stroke='rgba(243,18,96,0.3)' stroke-width='2.5'/%3E%3Cpolygon points='90,73 90,97 114,85' fill='rgba(243,18,96,0.35)'/%3E%3Ctext x='100' y='148' text-anchor='middle' font-family='sans-serif' font-size='12' fill='rgba(255,255,255,0.18)'%3E暂无封面%3C/text%3E%3C/svg%3E" alt="封面" onerror="imgFallback(this)" onclick="tFull()" />
         <div class="status-info" onclick="tFull()">
           <div class="status-title" id="nowPlaying">未播放</div>
           <div class="status-artist" id="statusArtist">-</div>
@@ -259,7 +259,7 @@
   <!-- 悬浮播放栏 -->
   <div class="pbar" id="pBar">
     <div class="prb" onclick="seek(event)" ontouchstart="seek(event)"><div class="prf" id="prgF"></div></div>
-    <img class="pc" id="pCvr" src="" alt="封面" onclick="tFull()" />
+    <img class="pc" id="pCvr" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23151520' rx='10'/%3E%3Ccircle cx='100' cy='85' r='32' fill='none' stroke='rgba(243,18,96,0.3)' stroke-width='2.5'/%3E%3Cpolygon points='90,73 90,97 114,85' fill='rgba(243,18,96,0.35)'/%3E%3Ctext x='100' y='148' text-anchor='middle' font-family='sans-serif' font-size='12' fill='rgba(255,255,255,0.18)'%3E暂无封面%3C/text%3E%3C/svg%3E" alt="封面" onerror="imgFallback(this)" onclick="tFull()" />
     <div class="pi" onclick="tFull()">
       <div class="pt" id="pTtl">未播放</div>
       <div class="pa" style="display: flex; align-items: center; gap: 8px;">
@@ -283,7 +283,7 @@
   <!-- 全屏播放器 -->
   <div class="fp" id="fullP">
     <button class="fc1" onclick="tFull()"><i class="fas fa-times"></i></button>
-    <img id="fpCvr" src="" alt="封面" />
+    <img id="fpCvr" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23151520' rx='20'/%3E%3Ccircle cx='200' cy='175' r='70' fill='none' stroke='rgba(243,18,96,0.3)' stroke-width='5'/%3E%3Cpolygon points='180,150 180,200 230,175' fill='rgba(243,18,96,0.35)'/%3E%3Ctext x='200' y='300' text-anchor='middle' font-family='sans-serif' font-size='24' fill='rgba(255,255,255,0.18)'%3E暂无封面%3C/text%3E%3C/svg%3E" alt="封面" onerror="imgFallback(this)" />
     <div class="ft" id="fpTtl">未播放</div>
     <div class="fa" id="fpArt">-</div>
     <div class="fpr">

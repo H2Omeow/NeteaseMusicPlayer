@@ -141,10 +141,11 @@ window.hdCL = function() {
 
 // ==================== 歌曲卡片渲染 ====================
 window.buildSongCardHtml = function(s) {
-  var sid = s.id, nm = s.nm, ar = s.ar, pc = s.pc;
+  var sid = s.id, nm = s.nm, ar = s.ar, pc = s.pc || '';
+  var imgSrc = pc ? (pc + '?param=100y100') : window.coverPlaceholder();
   return '<div class="s-item">'
     + '<div style="display:flex;flex:1;min-width:0;align-items:center;gap:12px;" onclick="pSongNow(' + sid + ',\'' + window.escA(nm) + '\',\'' + window.escA(ar) + '\',\'' + window.escA(pc) + '\')">'
-    + '<img src="' + pc + '?param=100y100" alt="" loading="lazy" />'
+    + '<img src="' + imgSrc + '" alt="" loading="lazy" onerror="imgFallback(this)" />'
     + '<div class="s-info">'
       + '<div class="sn">' + window.escH(nm) + '</div>'
       + '<div class="sa">' + window.escH(ar) + '</div>'
@@ -202,11 +203,17 @@ window.renderMinePlaylists = function() {
       document.getElementById('minePlaylists').innerHTML = '<div class="empty"><i class="fas fa-list"></i><div class="t">暂无自定义歌单</div><button class="btn" style="margin-top:14px" onclick="createNewPl()">创建歌单</button></div>';
       return;
   }
+  var ph = window.coverPlaceholder();
   var html = '<button class="btn btn-o" style="margin-bottom: 10px; width: max-content;" onclick="createNewPl()"><i class="fas fa-plus"></i> 新建歌单</button>';
   html += window.customPlaylists.map(function(p, i) {
-      var cover = p.songs.length > 0 ? p.songs[0].pc + '?param=100y100' : 'https://picsum.photos/100';
+      var cover;
+      if (p.songs.length > 0 && p.songs[0].pc) {
+        cover = p.songs[0].pc + '?param=100y100';
+      } else {
+        cover = ph;
+      }
       return '<div class="s-item" onclick="openCustomPl(' + i + ')">'
-           + '<img src="' + cover + '" />'
+           + '<img src="' + cover + '" onerror="imgFallback(this)" />'
            + '<div class="s-info"><div class="sn">' + window.escH(p.name) + '</div><div class="sa">' + p.songs.length + ' 首歌曲</div></div>'
            + '<button class="s-action-btn" onclick="event.stopPropagation(); deleteCustomPl(' + i + ')"><i class="fas fa-trash"></i></button>'
            + '</div>';

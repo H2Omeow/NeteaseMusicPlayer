@@ -30,14 +30,26 @@ window.pSong = function(id, nm, ar, pc) {
 window.playByIdx = function(i) {
   window.idx = i;
   var s = window.list[window.idx];
+  var coverUrl = s.pc || '';
+
   document.getElementById('pBar').style.display = 'flex';
   document.getElementById('pTtl').textContent = s.nm;
   document.getElementById('pArt').textContent = s.ar;
-  document.getElementById('pCvr').src = s.pc + '?param=100y100';
+
+  // 安全设置封面：空 URL 时使用占位图
+  if (coverUrl) {
+    document.getElementById('pCvr').src = coverUrl + '?param=100y100';
+    document.getElementById('fpCvr').src = coverUrl + '?param=400y400';
+    document.getElementById('statusCover').src = coverUrl + '?param=100y100';
+  } else {
+    var ph = window.coverPlaceholder();
+    document.getElementById('pCvr').src = ph;
+    document.getElementById('fpCvr').src = ph;
+    document.getElementById('statusCover').src = ph;
+  }
+
   document.getElementById('fpTtl').textContent = s.nm;
   document.getElementById('fpArt').textContent = s.ar;
-  document.getElementById('fpCvr').src = s.pc + '?param=400y400';
-  document.getElementById('statusCover').src = s.pc + '?param=100y100';
   document.getElementById('nowPlaying').textContent = s.nm;
   document.getElementById('statusArtist').textContent = s.ar;
   var cnt = parseInt(document.getElementById('playedCnt').textContent) || 0;
@@ -319,9 +331,10 @@ window.renderPL = function() {
   em.style.display = 'none';
 
   el.innerHTML = window.list.map(function(s, i) {
+    var plCover = (s.pc || '') ? (s.pc + '?param=100y100') : window.coverPlaceholder();
     return '<div class="s-item pl-item" draggable="true" data-i="' + i + '" onclick="plClick(' + i + ')">'
       + '<span class="drag-hdl" onclick="event.stopPropagation()"><i class="fas fa-grip-lines"></i></span>'
-      + '<img src="' + s.pc + '?param=100y100" alt="" loading="lazy" />'
+      + '<img src="' + plCover + '" alt="" loading="lazy" onerror="imgFallback(this)" />'
       + '<div class="s-info"><div class="sn" style="' + (window.idx === i ? 'color:var(--primary)' : '') + '">' + window.escH(s.nm) + '</div><div class="sa">' + window.escH(s.ar) + '</div></div>'
       + '<span class="pl-del" onclick="event.stopPropagation();rmPL(' + i + ')" title="删除"><i class="fas fa-times"></i></span>'
       + '</div>';
@@ -544,9 +557,11 @@ window.renderCustomPl = function() {
   if (songs.length === 0) { el.innerHTML = '<div class="pl-empty">歌单为空，快去搜索并添加吧</div>'; return; }
 
   el.innerHTML = songs.map(function(s, i) {
+    var cover = s.pc || '';
+    var src = cover ? (cover + '?param=100y100') : window.coverPlaceholder();
     return '<div class="s-item pl-item" draggable="true" data-ci="' + i + '" onclick="playCustomPlSong(' + i + ')">'
       + '<span class="drag-hdl" onclick="event.stopPropagation()"><i class="fas fa-grip-lines"></i></span>'
-      + '<img src="' + s.pc + '?param=100y100" alt="" loading="lazy" />'
+      + '<img src="' + src + '" alt="" loading="lazy" onerror="imgFallback(this)" />'
       + '<div class="s-info"><div class="sn">' + window.escH(s.nm) + '</div><div class="sa">' + window.escH(s.ar) + '</div></div>'
       + '<span class="pl-del" onclick="event.stopPropagation();rmCustomPlSong(' + i + ')" title="删除"><i class="fas fa-times"></i></span>'
       + '</div>';
