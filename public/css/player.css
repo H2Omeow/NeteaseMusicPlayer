@@ -1,0 +1,508 @@
+/* 悬浮胶囊播放器样式 */
+.pbar{
+  position:fixed;
+  bottom:14px;
+  left:calc(var(--sidebar-w) + 14px);
+  right:14px;
+  height:66px;
+  background:rgba(20,20,25,0.85);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border:1px solid var(--glass-border);
+  border-radius:18px;
+  display:none;
+  align-items:center;
+  padding:0 16px;
+  z-index:300;
+  gap:12px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+  transition:left 0.3s, opacity 0.3s, visibility 0.3s;
+}
+.pbar .pc{width:42px;height:42px;border-radius:8px;object-fit:cover;flex-shrink:0;cursor:pointer}
+.pbar .pi{min-width:0;flex:1;cursor:pointer}
+.pbar .pi .pt{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pbar .pi .pa{font-size:11px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pbar .pc2{display:flex;align-items:center;gap:6px}
+.pbar .pc2 button{background:none;border:none;color:var(--text-main);font-size:16px;cursor:pointer;padding:6px;border-radius:50%;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.pbar .pc2 button:hover{background:rgba(243,18,96,0.1);color:var(--primary)}
+.pbar .pc2 .pb1{width:36px;height:36px;background:var(--primary);color:#fff;border-radius:50%;font-size:14px}
+.pbar .pc2 .pb1:hover{box-shadow:0 0 16px rgba(243,18,96,.3)}
+.pbar .px{display:flex;align-items:center;gap:6px}
+.pbar .px button{background:none;border:none;color:var(--text-secondary);font-size:15px;cursor:pointer;padding:6px;border-radius:6px;transition:all .2s}
+.pbar .px button:hover{color:var(--text-main)}
+.pbar .px select{padding:4px 8px;border-radius:6px;border:1px solid var(--glass-border);background:transparent;color:var(--text-secondary);font-size:11px;cursor:pointer}
+
+/* 进度条基础样式 */
+.prb {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+}
+.prf {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 2px;
+  transition: width 0.15s;
+  width: 0;
+}
+
+/* 胶囊播放栏特殊的顶置边缘进度条定位，不占任何空间 */
+.pbar .prb {
+  position: absolute;
+  top: 0;
+  left: 18px;
+  right: 18px;
+  height: 3px;
+  border-radius: 0 0 2px 2px;
+  z-index: 5;
+}
+
+/* 全屏播放器 */
+.fp{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(8, 8, 12, var(--fp-opacity-val));
+  backdrop-filter:var(--fp-blur-val);
+  -webkit-backdrop-filter:var(--fp-blur-val);
+  z-index:9999;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:20px;
+  transition:background 0.3s, backdrop-filter 0.3s, -webkit-backdrop-filter 0.3s;
+}
+.fp.show{display:flex}
+.fp img{width:220px;height:220px;border-radius:50%;object-fit:cover;box-shadow:0 0 50px rgba(243,18,96,.12);animation:rotateImg 20s linear infinite;animation-play-state:paused}
+.fp img.playing{animation-play-state:running}
+@keyframes rotateImg{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@media(min-width:600px){.fp img{width:280px;height:280px}}
+
+/* 给全屏状态下的核心文字增加深邃黑影 */
+.fp .ft{
+  font-size:20px;
+  font-weight:700;
+  text-align:center;
+  padding:0 20px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  width:100%;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.8), 0 1px 3px rgba(0,0,0,0.9);
+}
+.fp .fa{
+  font-size:14px;
+  color:var(--text-secondary);
+  text-align:center;
+  padding:0 20px;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.8), 0 1px 2px rgba(0,0,0,0.9);
+}
+.fp .fpr{width:85%;max-width:460px;display:flex;align-items:center;gap:10px}
+.fp .fpr .t{
+  font-size:12px;
+  color:var(--text-secondary);
+  min-width:36px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+.fp .fpr .prb{height:5px}
+
+/* 歌词视口盒 */
+.fp .lc{
+  height:240px;
+  overflow-y:auto;
+  width:85%;
+  max-width:460px;
+  text-align:center;
+  scrollbar-width:none;
+  position:relative;
+  margin:10px 0;
+}
+@media(min-width:600px){
+  .fp .lc{height:300px}
+}
+.fp .lc::-webkit-scrollbar{display:none}
+.fp .lc ul{
+  list-style:none;
+  margin:0;
+  padding:80px 0 140px 0; /* 保持首尾行歌词流畅居中 */
+}
+.fp .lc li{
+  padding:8px 0;
+  font-size:15px;
+  color:rgba(255, 255, 255, 0.45);
+  transition:all 0.3s ease;
+  cursor:pointer;
+  line-height:1.6;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.7), 0 1px 2px rgba(0,0,0,0.8);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+.fp .lc li.active{
+  color:#fff;
+  font-size:18px;
+  font-weight:700;
+  transform:scale(1.04);
+  text-shadow: 0 2px 12px rgba(0,0,0,0.9), 0 1px 3px rgba(0,0,0,1);
+}
+.fp .lc li .lt{display:block;font-size:12px;color:#f871a0;margin-top:2px}
+.fp .fc{display:flex;gap:18px;align-items:center}
+/* ====== 以下为拆分时被截断丢失的样式 ====== */
+
+/* 全屏播放器按钮 */
+.fp .fc button{
+  background:none;
+  border:none;
+  color:#fff;
+  font-size:26px;
+  cursor:pointer;
+  opacity:.7;
+  transition:all .2s;
+}
+.fp .fc button:hover{opacity:1}
+.fp .fc .fpb{
+  width:56px;
+  height:56px;
+  background:var(--primary);
+  border-radius:50%;
+  font-size:22px;
+  opacity:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.fp .fc .fpb:hover{box-shadow:0 0 28px rgba(243,18,96,.35)}
+.fp .fc1{
+  position:absolute;
+  top:18px;
+  right:18px;
+  background:none;
+  border:none;
+  color:#fff;
+  font-size:22px;
+  cursor:pointer;
+  padding:6px;
+  opacity:.5;
+}
+.fp .fc1:hover{opacity:1}
+
+/* 卡拉OK逐字渲染 */
+.wc{
+  position:relative;
+  display:inline-block;
+  vertical-align:bottom;
+}
+.wg, .wp{
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  white-space: pre;
+}
+.wg{
+  color:rgba(255, 255, 255, 0.45);
+}
+.wp{
+  position:absolute;
+  left:0;
+  top:0;
+  overflow:hidden;
+  width:0%;
+  color:var(--primary);
+  white-space:pre;
+  transition: width 0.1s linear;
+}
+.wc.done .wp{width:100%!important}
+
+/* 播放列表拖拽样式 */
+.pl-list{display:flex;flex-direction:column;gap:6px;overflow-y:auto;max-height:60vh}
+.pl-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;transition:background .15s}
+.pl-item:hover{background:var(--card-bg)}
+.pl-item.dragging{opacity:.4}
+.pl-item.drag-over{border-top:2px solid var(--primary)}
+.pl-item .drag-hdl{cursor:grab;color:var(--text-secondary);font-size:16px;padding:4px;user-select:none}
+.pl-item .drag-hdl:active{cursor:grabbing}
+.pl-item .pl-info{flex:1;min-width:0}
+.pl-item .pl-info .pl-nm{font-size:14px;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl-item .pl-info .pl-ar{font-size:12px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl-item .pl-del{padding:4px 8px;color:var(--text-secondary);border-radius:4px;font-size:14px;transition:color .15s}
+.pl-item .pl-del:hover{color:var(--primary)}
+.pl-empty{padding:30px;text-align:center;color:var(--text-secondary);font-size:14px}
+
+/* 移动端悬浮栏响应式（原始 layout.css 缺失） */
+@media(max-width:768px){
+  .pbar{left:12px;right:12px;bottom:12px}
+}
+@media(max-width:480px){
+  .pbar{padding:0 12px;gap:8px;height:58px}
+  .pbar .pc{width:36px;height:36px;border-radius:6px}
+  .pbar .pi{min-width:0;flex:1}
+  .pbar .pi .pt{font-size:12px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pbar .pi .pa{display:flex !important;font-size:10px}
+  .pbar .pc2 button{font-size:12px;padding:4px}
+  .pbar .pc2 .pb1{width:30px;height:30px;font-size:11px}
+  .pbar .px select{display:none}
+  #bgStatusText{font-size:10px}
+}
+
+/* ==================== 播放列表拖拽 — 卡片拿起效果 ==================== */
+.pl-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.pl-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.2s ease,
+              opacity 0.2s ease,
+              margin 0.2s ease;
+  position: relative;
+  will-change: transform;            /* 硬件加速，拖拽不卡 */
+}
+
+/* 封面图 */
+.pl-item img {
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* 拖拽手柄 */
+.pl-item .drag-hdl {
+  cursor: grab;
+  color: var(--text-secondary);
+  font-size: 16px;
+  padding: 4px;
+  user-select: none;
+  flex-shrink: 0;
+}
+.pl-item .drag-hdl:active {
+  cursor: grabbing;
+}
+
+/* 文字信息区 */
+.pl-item .s-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* 删除按钮 */
+.pl-item .pl-del {
+  padding: 4px 8px;
+  color: var(--text-secondary);
+  border-radius: 4px;
+  font-size: 14px;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+.pl-item .pl-del:hover {
+  color: var(--primary);
+}
+
+/* ===== 🃏 拖拽中 — "拿起来"的感觉 ===== */
+.pl-item.dragging {
+  opacity: 0.75;
+  transform: scale(1.03) rotate(0.5deg);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.5),
+    0 0 0 1px var(--primary),
+    0 0 20px rgba(243, 18, 96, 0.25);
+  z-index: 10;
+  background: rgba(25, 25, 40, 0.95) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ===== 📍 落点指示 — "插槽"效果 ===== */
+.pl-item.drag-over {
+  position: relative;
+  margin-top: 18px;                    /* 撑开间隙 */
+  padding-top: 18px;
+  border-top: 2px solid transparent;
+  border-radius: 0;
+}
+
+/* 发光的插入线 */
+.pl-item.drag-over::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 1px;
+  box-shadow: 0 0 12px rgba(243, 18, 96, 0.6), 0 0 4px rgba(243, 18, 96, 0.8);
+  animation: dragPulse 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes dragPulse {
+  from { box-shadow: 0 0 8px rgba(243, 18, 96, 0.4), 0 0 2px rgba(243, 18, 96, 0.6); }
+  to   { box-shadow: 0 0 16px rgba(243, 18, 96, 0.7), 0 0 6px rgba(243, 18, 96, 1); }
+}
+
+/* 防止第一个元素没有上方参照时 margin 异常 */
+.pl-item:first-child.drag-over {
+  margin-top: 0;
+}
+
+/* 空列表占位 */
+.pl-empty {
+  padding: 30px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* ==================== 主页顶部播放状态栏 ==================== */
+.top-status {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  background: var(--card-bg);
+  backdrop-filter: var(--blur-val);
+  -webkit-backdrop-filter: var(--blur-val);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  transition: border-color 0.2s, background 0.3s, backdrop-filter 0.3s, -webkit-backdrop-filter 0.3s;
+}
+.top-status:hover {
+  border-color: rgba(243, 18, 96, 0.2);
+}
+.top-status img {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.top-status img:hover {
+  transform: scale(1.05);
+}
+.top-status .status-info {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+.top-status .status-info .status-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.top-status .status-info .status-artist {
+  font-size: 12px;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+.top-status .status-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.top-status .status-badge {
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 5px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.top-status .status-play-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.top-status .status-play-icon:hover {
+  box-shadow: 0 0 16px rgba(243, 18, 96, 0.3);
+  transform: scale(1.05);
+}
+.top-status .status-play-icon:active {
+  transform: scale(0.95);
+}
+
+/* ==================== 可折叠卡片 ==================== */
+.collapsible-card {
+  overflow: hidden;
+}
+.collapsible-card .card-header.collapsible-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+}
+.collapsible-card .card-header.collapsible-trigger:hover {
+  color: var(--text-main);
+}
+.collapsible-card .card-header.collapsible-trigger .collapse-arrow {
+  font-size: 11px;
+  color: var(--text-secondary);
+  transition: transform 0.25s ease;
+}
+.collapsible-card .card-header.collapsible-trigger .collapse-arrow i {
+  display: inline-block;
+  transition: transform 0.25s ease;
+}
+.collapsible-card:not(.collapsed) .card-header.collapsible-trigger .collapse-arrow i {
+  transform: rotate(180deg);
+}
+.collapsible-card .collapse-body {
+  padding-top: 12px;
+  margin-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.collapsible-card.collapsed .collapse-body {
+  display: none;
+}
+
+/* ==================== 页面底部边距 ==================== */
+.main .body {
+  padding-bottom: 90px;
+}
+@media (max-width: 480px) {
+  .main .body {
+    padding-bottom: 80px;
+  }
+}

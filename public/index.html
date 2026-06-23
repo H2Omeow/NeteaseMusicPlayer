@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>超级播放器</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link rel="stylesheet" href="/css/base.css" />
+<link rel="stylesheet" href="/css/layout.css" />
+<link rel="stylesheet" href="/css/components.css" />
+<link rel="stylesheet" href="/css/player.css" />
+</head>
+<body>
+
+<div id="bg-overlay"></div>
+<div id="bg-mask"></div>
+
+<!-- ================= 侧栏与顶栏 ================= -->
+<aside class="sidebar">
+  <div class="sidebar-header"><span class="logo-text">超级播放器</span></div>
+  <nav class="sidebar-menu">
+    <button class="mi active" onclick="sw('home')" data-v="home"><i class="fas fa-home"></i><span class="lbl">主页</span></button>
+    <button class="mi" onclick="sw('music')" data-v="music"><i class="fas fa-music"></i><span class="lbl">网易云音乐</span></button>
+    <button class="mi" onclick="sw('mine')" data-v="mine"><i class="fas fa-user"></i><span class="lbl">我的</span></button>
+    <button class="mi" onclick="sw('bilibili')" data-v="bilibili"><i class="fab fa-bilibili"></i><span class="lbl">哔哩哔哩</span></button>
+    <div class="sidebar-bottom">
+      <button class="mi" onclick="shCL()"><i class="fas fa-history"></i><span class="lbl">更新日志</span></button>
+    </div>
+  </nav>
+</aside>
+
+<div class="mobile-nav">
+  <span class="logo-text-mb">超级播放器</span>
+  <div class="mb-tabs">
+    <button class="mi-mb active" onclick="sw('home')" data-v="home"><i class="fas fa-home"></i><span class="lbl">主页</span></button>
+    <button class="mi-mb" onclick="sw('music')" data-v="music"><i class="fas fa-music"></i><span class="lbl">听歌</span></button>
+    <button class="mi-mb" onclick="sw('mine')" data-v="mine"><i class="fas fa-user"></i><span class="lbl">我的</span></button>
+    <button class="mi-mb" onclick="sw('bilibili')" data-v="bilibili"><i class="fab fa-bilibili"></i><span class="lbl">视频</span></button>
+    <button class="mi-mb-icon" onclick="shCL()"><i class="fas fa-history"></i></button>
+  </div>
+</div>
+
+<main class="main">
+  <div class="topbar"><span id="pgTitle">主页</span></div>
+  <div class="body">
+
+        <!-- ================= 1. 主页 ================= -->
+    <div class="pg active" id="pgHome">
+      <!-- ★ 新增：顶部播放状态栏（替代原播放统计卡片） -->
+      <div class="top-status" id="topStatus">
+        <img id="statusCover" src="" alt="封面" onclick="tFull()" />
+        <div class="status-info" onclick="tFull()">
+          <div class="status-title" id="nowPlaying">未播放</div>
+          <div class="status-artist" id="statusArtist">-</div>
+        </div>
+        <div class="status-right">
+          <span class="status-badge"><i class="fas fa-headphones"></i> 已播 <span id="playedCnt">0</span> 首</span>
+          <span class="status-play-icon" id="statusPlayIcon" onclick="tPlay()"><i class="fas fa-play"></i></span>
+        </div>
+      </div>
+      <div class="grid-2">
+        <!-- 卡片1：系统状态（默认折叠） -->
+        <div class="card collapsible-card collapsed">
+          <div class="card-header collapsible-trigger" onclick="toggleCollapse(this)">
+            <span><i class="fas fa-circle" style="font-size:7px;color:#4ade80"></i> 系统状态</span>
+            <span class="collapse-arrow"><i class="fas fa-chevron-down"></i></span>
+          </div>
+          <div class="card-body collapse-body">
+            <div class="ir"><span class="l">运行状态</span><span class="v"><span class="sdot on"></span>运行中</span></div>
+            <div class="ir"><span class="l">API 服务</span><span class="v" id="apiS">检测中...</span></div>
+            <div class="ir"><span class="l">服务器</span><span class="v">Node.js Express</span></div>
+          </div>
+        </div>
+         <!-- 卡片2：视觉设置（默认折叠） -->
+        <div class="card full-w collapsible-card collapsed">
+          <div class="card-header collapsible-trigger" onclick="toggleCollapse(this)">
+            <span><i class="fas fa-palette"></i> 个性化视觉设置</span>
+            <span class="collapse-arrow"><i class="fas fa-chevron-down"></i></span>
+          </div>
+          <div class="card-body collapse-body">
+            <div class="ci">
+            <div class="cg" style="justify-content: space-between; width: 100%;">
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <span style="font-size:13px; font-weight:600; color:var(--text-main);">卡片毛玻璃效果（模糊强度）</span>
+                <span style="font-size:11px; color:var(--text-secondary);">调整主界面内容卡片的模糊质感</span>
+              </div>
+              <select id="blurSel" onchange="updateThemeStyle()" style="padding:6px 12px; border-radius:var(--radius); border:1px solid var(--glass-border); background:rgba(30,30,50,0.6); color:#fff; cursor:pointer;">
+                <option value="0px">无模糊 (0px)</option>
+                <option value="6px">轻微 (6px)</option>
+                <option value="12px" selected>默认标准 (12px)</option>
+                <option value="20px">深度模糊 (20px)</option>
+              </select>
+            </div>
+            <div class="cg" style="justify-content: space-between; width: 100%; margin-top: 10px;">
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <span style="font-size:13px; font-weight:600; color:var(--text-main);">全局背景遮罩明暗</span>
+                <span style="font-size:11px; color:var(--text-secondary);">调节最底层背景壁纸的暗度遮罩</span>
+              </div>
+              <input type="range" id="maskOpacityRange" min="0.1" max="0.9" step="0.05" value="0.52" oninput="changeMaskOpacity(this.value)" style="width:130px; accent-color:var(--primary);" />
+            </div>
+            <div class="cg" style="justify-content: space-between; width: 100%; margin-top: 10px;">
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <span style="font-size:13px; font-weight:600; color:var(--text-main);">主页控件透明度</span>
+                <span style="font-size:11px; color:var(--text-secondary);">调整全局容器及普通面板的透明比例</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <input type="range" id="transOpacityRange" min="0.1" max="1" step="0.05" value="0.5" oninput="updateThemeStyle()" style="width:110px; accent-color:var(--primary);" />
+                <span id="transOpacityVal" style="font-size:12px; color:var(--text-secondary); min-width:30px; text-align:right;">50%</span>
+              </div>
+            </div>
+            <div class="cg" style="justify-content: space-between; width: 100%; margin-top: 10px;">
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <span style="font-size:13px; font-weight:600; color:var(--text-main);">玻璃透明材质类型</span>
+                <span style="font-size:11px; color:var(--text-secondary);">切换控件的渲染特效风格</span>
+              </div>
+              <select id="transTypeSel" onchange="updateThemeStyle()" style="padding:6px 12px; border-radius:var(--radius); border:1px solid var(--glass-border); background:rgba(30,30,50,0.6); color:#fff; cursor:pointer;">
+                <option value="blur" selected>普通毛玻璃</option>
+                <option value="acrylic">Fluent 微软亚克力</option>
+                <option value="transparent">完全透明 (无模糊)</option>
+              </select>
+            </div>
+            <div class="cg" style="justify-content: space-between; width: 100%; margin-top: 10px; border-top:1px solid var(--glass-border); padding-top:10px;">
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <span style="font-size:13px; font-weight:600; color:var(--text-main);">全屏播放器模糊强度</span>
+                <span style="font-size:11px; color:var(--text-secondary);">全屏时独占背景图片的模糊穿透效果</span>
+              </div>
+              <select id="fpBlurSel" onchange="changeFpBlur(this.value)" style="padding:6px 12px; border-radius:var(--radius); border:1px solid var(--glass-border); background:rgba(30,30,50,0.6); color:#fff; cursor:pointer;">
+                <option value="none">无模糊 (0px)</option>
+                <option value="blur(6px)">轻微 (6px)</option>
+                <option value="blur(12px)">标准 (12px)</option>
+                <option value="blur(24px)" selected>较强 (24px)</option>
+                <option value="blur(40px)">极度模糊 (40px)</option>
+              </select>
+            </div>
+            <div class="cg" style="justify-content: space-between; width: 100%; margin-top: 10px;">
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <span style="font-size:13px; font-weight:600; color:var(--text-main);">全屏播放器背景透明度</span>
+                <span style="font-size:11px; color:var(--text-secondary);">调整全屏时基于背景图的独立暗度遮盖层</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <input type="range" id="fpOpacityRange" min="0" max="1" step="0.05" value="0.6" oninput="changeFpOpacity(this.value)" style="width:110px; accent-color:var(--primary);" />
+                <span id="fpOpacityVal" style="font-size:12px; color:var(--text-secondary); min-width:30px; text-align:right;">60%</span>
+              </div>
+            </div>
+            <div class="cg" style="justify-content: space-between; width: 100%; margin-top: 10px; border-top:1px solid var(--glass-border); padding-top:10px;">
+              <div style="display:flex; flex-direction:column; gap:4px; max-width: 70%">
+                <span style="font-size:13px; font-weight:600; color:var(--text-main);">本地壁纸状态</span>
+                <span style="font-size:11px; color:var(--text-secondary); transition:color 0.2s" id="bgStatusText">等待获取...</span>
+              </div>
+              <button class="qrb" onclick="initBg()" style="font-size:11px; padding:6px 12px; border-radius:var(--radius); border:1px solid var(--glass-border); background:rgba(243,18,96,0.08); color:var(--text-secondary); cursor:pointer;"><i class="fas fa-sync-alt"></i> 重新加载</button>
+            </div>
+          </div>
+        </div>
+      </div>
+        <!-- 卡片4: 关于本站 -->
+        <div class="card full-w">
+          <div class="ct"><i class="fas fa-info-circle"></i> 关于本站</div>
+          <div class="ir"><span class="l">站点名称</span><span class="v">超级播放器 Pro Max Ultra</span></div>
+          <div class="ir"><span class="l">技术栈</span><span class="v">Node.js Express + 纯静态前端</span></div>
+          <div class="ir"><span class="l">API 地址</span><span class="v">http://nekoh2o.top:3000</span></div>
+          <div class="ir"><span class="l">功能</span><span class="v">在线搜歌 · 高音质 · 滚动歌词 · 全屏</span></div>
+        </div>
+        <!-- 卡片5: 快捷操作 -->
+        <div class="card full-w">
+          <div class="ct"><i class="fas fa-bolt"></i> 快捷操作</div>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn" onclick="sw('music')"><i class="fas fa-music" style="margin-right:6px"></i>去听歌</button>
+            <button class="btn btn-o" onclick="window.open('http://nekoh2o.top:3000')"><i class="fas fa-book" style="margin-right:6px"></i>API 文档</button>
+          </div>
+        </div>
+      </div> <!-- /grid-2 彻底闭合 -->
+
+      <!-- 卡片6: Cookie 管理 -->
+      <div class="card full-w" style="margin-top: 14px;">
+        <div class="ct"><i class="fas fa-cookie-bite" style="margin-right:6px"></i> Cookie 管理</div>
+        <div class="ci">
+          <div class="cg">
+            <label><i class="fab fa-napster" style="color:var(--primary);margin-right:4px"></i>网易云</label>
+            <input type="password" id="ncCookie" placeholder="输入网易云 Cookie" />
+            <button class="qrb" onclick="qrLogin()"><i class="fas fa-qrcode"></i> 扫码登录</button>
+            <span class="saved" id="ncSaved">已保存</span>
+          </div>
+          <div class="cg">
+            <label><i class="fab fa-bilibili" style="color:var(--primary);margin-right:4px"></i>哔哩哔哩</label>
+            <input type="password" id="blCookie" placeholder="输入哔哩哔哩 Cookie" />
+            <button class="qrb" disabled><i class="fas fa-qrcode"></i> 扫码登录</button>
+            <span class="saved" id="blSaved">已保存</span>
+          </div>
+        </div>
+      </div>
+    </div> <!-- /pgHome 主页彻底闭合 -->
+
+
+    <!-- ================= 2. 我的 ================= -->
+    <div class="pg" id="pgMine">
+      <div class="card full-w" style="margin-bottom:18px; display:flex; align-items:center; gap:16px;">
+        <i class="fas fa-user-circle" style="font-size: 52px; color: var(--text-secondary); opacity: 0.8;"></i>
+        <div style="flex:1;">
+          <div style="font-size:18px; font-weight:bold; color: var(--text-main);">未登录用户</div>
+          <div style="font-size:12px; color:var(--text-secondary); margin-top: 5px;">登录以同步多端数据及云端歌单</div>
+        </div>
+        <button class="btn btn-o" onclick="toast('🔧系统维护中，暂未开启...')">前往登录</button>
+      </div>
+      <div class="mine-tabs" id="mineTabs">
+        <button class="active" onclick="setMineTab('history', this)"><i class="fas fa-history" style="margin-right:6px"></i>播放记录</button>
+        <button onclick="setMineTab('favorites', this)"><i class="fas fa-heart" style="margin-right:6px"></i>我的收藏</button>
+        <button onclick="setMineTab('playlists', this)"><i class="fas fa-list" style="margin-right:6px"></i>自定义歌单</button>
+      </div>
+      <div id="mineHistory" class="s-list"></div>
+      <div id="mineFavorites" class="s-list" style="display:none;"></div>
+      <div id="minePlaylists" class="s-list" style="display:none;"></div>
+    </div> <!-- /pgMine 彻底闭合 -->
+
+
+    <!-- ================= 3. 音乐 ================= -->
+    <div class="pg" id="pgMusic">
+      <div class="s-tabs">
+        <button class="active" onclick="setSType(1,this)" data-type="1">歌曲</button>
+        <button onclick="setSType(100,this)" data-type="100">歌手</button>
+        <button onclick="setSType(10,this)" data-type="10">专辑</button>
+      </div>
+      <div class="sbar">
+        <div class="s-wrap" style="flex:1;min-width:150px">
+          <input type="text" id="sIpt" placeholder="搜索歌曲..." style="width:100%" oninput="sugDelay()" />
+          <div class="s-drop" id="sDrop"></div>
+        </div>
+        <select id="qSel"><option value="standard">标准</option><option value="higher">较高</option><option value="exhigh" selected>极高</option><option value="lossless">无损</option></select>
+        <button class="btn" id="sBtn"><i class="fas fa-search"></i></button>
+      </div>
+      <div id="recSec">
+        <div class="st"><i class="fas fa-fire" style="color:var(--primary)"></i>推荐歌单</div>
+        <div class="plr" id="plRow"><div class="spin" style="margin:16px"></div></div>
+        <div class="st" style="margin-top:16px"><i class="fas fa-star" style="color:var(--primary)"></i>推荐歌曲</div>
+        <div class="s-list" id="recGrid"><div class="spin" style="margin:16px"></div></div>
+      </div>
+      <div id="sRes" style="display:none">
+        <div class="st">搜索结果 <span style="font-size:12px;color:var(--text-secondary);font-weight:400" id="resCnt"></span></div>
+        <div class="s-list" id="resGrid"></div>
+      </div>
+    </div> <!-- /pgMusic 彻底闭合 -->
+
+
+    <!-- ================= 4. 视频 ================= -->
+    <div class="pg" id="pgBilibili">
+      <div class="sbar">
+        <input type="text" id="biIpt" placeholder="搜索视频、UP主..." style="flex:1;min-width:150px" />
+        <button class="btn" id="biBtn"><i class="fas fa-search"></i></button>
+      </div>
+      <div id="biRecSec">
+        <div class="st"><i class="fas fa-fire" style="color:var(--primary)"></i>热门视频</div>
+        <div class="sg" id="biGrid"><div class="spin" style="margin:16px"></div></div>
+      </div>
+      <div id="biRes" style="display:none">
+        <div class="st">搜索结果 <span style="font-size:12px;color:var(--text-secondary);font-weight:400" id="biCnt"></span></div>
+        <div class="sg" id="biResGrid"></div>
+      </div>
+    </div> <!-- /pgBilibili 彻底闭合 -->
+
+  </div> <!-- ==== /body 全局容器彻底闭合 ==== -->
+
+  <!-- ================= 5. 全局组件 (悬浮栏 / 弹窗) ================= -->
+  
+  <!-- 悬浮播放栏 -->
+  <div class="pbar" id="pBar">
+    <div class="prb" onclick="seek(event)" ontouchstart="seek(event)"><div class="prf" id="prgF"></div></div>
+    <img class="pc" id="pCvr" src="" alt="封面" onclick="tFull()" />
+    <div class="pi" onclick="tFull()">
+      <div class="pt" id="pTtl">未播放</div>
+      <div class="pa" style="display: flex; align-items: center; gap: 8px;">
+        <span id="pArt">-</span>
+        <span class="p-time-mini" style="opacity: 0.6; font-size: 10px; font-weight: normal; font-family: monospace;">
+          <span id="curT">00:00</span> / <span id="durT">00:00</span>
+        </span>
+      </div>
+    </div>
+    <div class="pc2">
+      <button onclick="prev()" title="上一首"><i class="fas fa-step-backward"></i></button>
+      <button class="pb1" onclick="tPlay()"><i class="fas fa-play" id="pIcn"></i></button>
+      <button onclick="next()" title="下一首"><i class="fas fa-step-forward"></i></button>
+    </div>
+    <div class="px">
+      <button onclick="shPL()" title="当前播放列表"><i class="fas fa-list"></i></button>
+      <select onchange="document.getElementById('qSel').value=this.value"><option value="standard">标准</option><option value="higher">较高</option><option value="exhigh" selected>极高</option><option value="lossless">无损</option></select>
+    </div>
+  </div>
+
+  <!-- 全屏播放器 -->
+  <div class="fp" id="fullP">
+    <button class="fc1" onclick="tFull()"><i class="fas fa-times"></i></button>
+    <img id="fpCvr" src="" alt="封面" />
+    <div class="ft" id="fpTtl">未播放</div>
+    <div class="fa" id="fpArt">-</div>
+    <div class="fpr">
+      <span class="t" id="fpCurT">00:00</span>
+      <div class="prb" onclick="seek(event)" ontouchstart="seek(event)"><div class="prf" id="fpPrg"></div></div>
+      <span class="t" id="fpDur">00:00</span>
+    </div>
+    <div class="lc" id="lyrBox"><ul id="lyrUl"></ul></div>
+    <div class="fc">
+      <button onclick="prev()"><i class="fas fa-step-backward"></i></button>
+      <button class="fpb" onclick="tPlay()"><i class="fas fa-play" id="fpIcn"></i></button>
+      <button onclick="next()"><i class="fas fa-step-forward"></i></button>
+    </div>
+  </div>
+
+  <!-- 专属播放列表 Modal -->
+  <div class="modal" id="plModal" onclick="if(event.target===this)hdPL()">
+    <div class="mc">
+      <h2><span><i class="fas fa-list" style="color:var(--primary);margin-right:8px"></i>当前播放列表</span><button class="close" onclick="hdPL()"><i class="fas fa-times"></i></button></h2>
+      <div class="pl-empty" id="plEmpty">播放列表为空</div>
+      <div class="pl-list" id="plList" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <!-- 添加到歌单模态框 -->
+  <div class="modal" id="addPlModal" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="mc">
+      <h2><span><i class="fas fa-folder-plus" style="color:var(--primary);margin-right:8px"></i>加入到播放列表...</span><button class="close" onclick="document.getElementById('addPlModal').classList.remove('show')"><i class="fas fa-times"></i></button></h2>
+      <div id="addPlTargetList" style="display:flex; flex-direction:column; gap:10px; margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <!-- 自定义歌单管理及播放 Modal -->
+  <div class="modal" id="customPlModal" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="mc">
+      <h2><span id="cPlTitle"><i class="fas fa-list" style="color:var(--primary);margin-right:8px"></i>自定义歌单</span><button class="close" onclick="document.getElementById('customPlModal').classList.remove('show')"><i class="fas fa-times"></i></button></h2>
+      <div class="pl-list" id="cPlList" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <!-- 登录模态框 -->
+  <div class="modal" id="qrModal" onclick="if(event.target===this)closeQR()">
+    <div class="mc">
+      <h2><span><i class="fas fa-qrcode" style="color:var(--primary);margin-right:8px"></i>网易云扫码登录</span><button class="close" onclick="closeQR()"><i class="fas fa-times"></i></button></h2>
+      <div class="qr-body">
+        <img id="qrImg" src="" alt="二维码" />
+        <div class="qr-msg" id="qrMsg">正在获取二维码...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 更新日志模态框 -->
+  <div class="modal" id="clModal" onclick="if(event.target===this)hdCL()">
+    <div class="mc">
+      <h2><span><i class="fas fa-history" style="color:var(--primary);margin-right:8px"></i>更新日志</span><button class="close" onclick="hdCL()"><i class="fas fa-times"></i></button></h2>
+      <div id="clList"></div>
+    </div>
+  </div>
+
+  <audio id="aPlayer" style="display:none"></audio>
+</main>
+
+<script src="/js/utils.js"></script>
+<script src="/js/config.js"></script>
+<script src="/js/theme.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/player.js"></script>
+<script src="/js/init.js"></script>
+</body>
+</html>

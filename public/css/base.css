@@ -1,0 +1,69 @@
+:root{
+  --primary:#f31260;
+  --main-bg:#0f0f13;
+  --glass-border:rgba(255,255,255,0.08);
+  --text-main:#e0e0e0;
+  --text-secondary:#9e9e9e;
+  --sidebar-w:180px;
+  --radius:14px;
+  
+  /* 个性化动态样式变量（主页通用控件） */
+  --opacity-val:0.5;
+  --blur-val:blur(12px);
+  --card-bg:rgba(30,30,50,var(--opacity-val));
+  --nav-bg:rgba(13,13,13,var(--opacity-val));
+
+  /* 全屏播放器独立样式变量 */
+  --fp-opacity-val: 0.6;
+  --fp-blur-val: blur(24px);
+}
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent; /* 移除移动端触碰蓝色高亮 */
+  outline:none;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  background:#09090b;
+  color:var(--text-main);
+  display:flex;
+  height:100vh;
+  overflow:hidden;
+  letter-spacing:.02em;
+  position:relative;
+}
+
+/* 隐藏主页元素，确保全屏下纯粹穿透至背景图片 */
+body.fs-mode .sidebar,
+body.fs-mode .mobile-nav,
+body.fs-mode .topbar,
+body.fs-mode .body,
+body.fs-mode .pbar {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* 背景与遮罩层配置 */
+#bg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-color: #09090b;
+  background-size: cover;          /* 契合屏幕的核心裁剪属性 */
+  background-position: center;     /* 居中裁剪 */
+  background-repeat: no-repeat;
+  transition: background-image 0.8s ease-in-out;
+}
+#bg-mask {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: rgba(0, 0, 0, 0.52); /* 黑色透明遮罩 */
+  pointer-events: none;
+}
+
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:rgba(243,18,96,0.25);border-radius:3px}
