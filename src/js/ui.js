@@ -103,19 +103,66 @@ window.closeQR = function() {
   document.getElementById('qrModal').classList.remove('show');
 };
 
-// ==================== 导航切换 ====================
+// ==================== 页面导航记录 ====================
+window.pageOrder = ['home', 'music', 'mine', 'bilibili'];
+window.currentPage = 'home';
+
+// ==================== 核心页面切换 ====================
 window.sw = function(v) {
+  var oldPage = window.currentPage;
+  var oldIdx = window.pageOrder.indexOf(oldPage);
+  var newIdx = window.pageOrder.indexOf(v);
+  
+  if (oldIdx === newIdx) return;
+  var isForward = newIdx > oldIdx;
+
+  var oldEl = document.getElementById('pg' + oldPage.charAt(0).toUpperCase() + oldPage.slice(1));
+  var newEl = document.getElementById('pg' + v.charAt(0).toUpperCase() + v.slice(1));
+
   document.querySelectorAll('[data-v]').forEach(function(e) { e.classList.remove('active'); });
   document.querySelectorAll('[data-v="' + v + '"]').forEach(function(e) { e.classList.add('active'); });
-  document.querySelectorAll('.pg').forEach(function(e) { e.classList.remove('active'); });
-
-  var targetPg = document.getElementById('pg' + v.charAt(0).toUpperCase() + v.slice(1));
-  if (targetPg) targetPg.classList.add('active');
 
   var pgTitle = document.getElementById('pgTitle');
   if (pgTitle) {
-    pgTitle.textContent = {home:'主页',music:'网易云音乐',bilibili:'哔哩哔哩',mine:'我的'}[v] || '主页';
+    pgTitle.textContent = {home:'主页', music:'网易云音乐', bilibili:'哔哩哔哩', mine:'我的'}[v] || '主页';
   }
+
+  // 处理旧页面的滑出
+  if (oldEl) {
+    oldEl.classList.add('animating'); // 强制保留 render 图层
+    oldEl.classList.remove('active', 'slide-left', 'slide-right');
+    oldEl.classList.add(isForward ? 'slide-left' : 'slide-right');
+    
+    clearTimeout(oldEl.swTimer);
+    oldEl.swTimer = setTimeout(function() {
+      if (!oldEl.classList.contains('active')) {
+        // 动画结束彻底隐身，防止残留乱飘
+        oldEl.classList.remove('animating', 'slide-left', 'slide-right');
+      }
+    }, 360);
+  }
+
+  // 处理新页面的滑入
+  if (newEl) {
+    newEl.classList.add('animating'); // 先占位
+    newEl.style.transition = 'none';  // 禁用动画确保放置到正确起点
+    newEl.classList.remove('active', 'slide-left', 'slide-right');
+    newEl.classList.add(isForward ? 'slide-right' : 'slide-left');
+    
+    void newEl.offsetWidth; // 触发重绘
+    
+    newEl.style.transition = '';      // 恢复动画
+    newEl.classList.remove('slide-left', 'slide-right');
+    newEl.classList.add('active');
+    
+    clearTimeout(newEl.swTimer);
+    newEl.swTimer = setTimeout(function() {
+      newEl.classList.remove('animating'); // 动画结束剥离占位类
+    }, 360);
+  }
+
+  window.currentPage = v;
+
   if (v === 'music') window.loadRec();
   if (v === 'bilibili') window.loadBili();
   if (v === 'mine') window.setMineTab('history', document.querySelector('#mineTabs button'));
@@ -123,6 +170,8 @@ window.sw = function(v) {
 
 // ==================== 更新日志 ====================
 window.logs = [
+  {d:'2026-06-24',t:'添加大量过渡动画，提升网站整体观感'},
+  {d:'2026-06-23',t:'使用vite进行标准化重构，未播放音乐时为主页播放器状态添加图片占位符'},
   {d:'2026-06-22',t:'全体系大更新：新增游客自动认证（防错误）、自定义多层歌单系统、我的界面历史记录；卡片可分离式一键秒插播及收藏。'},
   {d:'2026-06-20',t:'全屏纯净穿透：全屏模式下屏蔽背景组件，直达壁纸；同时开放全屏界面的独立模糊效果与透明度参数调节。'},
   {d:'2026-06-20',t:'自适应最优比例裁剪：彻底重构壁纸轮询体系，直接计算与用户视口的"最相近比例差"，并行筛选最佳壁纸无缝呈现。'}
